@@ -147,14 +147,3 @@ function reconcileChildren(wipFiber, elements) {
 
 const Didact = { createElement, render, useState };
 
-// TESTE FINAL
-const container = document.getElementById("root");
-function Counter() {
-  const [count, setCount] = Didact.useState(1);
-  return Didact.createElement("div", null, 
-    Didact.createElement("h1", null, "Count: ", count),
-    Didact.createElement("button", { onClick: () => setCount(c => c + 1) }, "+"),
-    Didact.createElement("button", { onClick: () => setCount(c => c - 1) }, "-")
-  );
-}
-Didact.render(Didact.createElement(Counter, null), container);
