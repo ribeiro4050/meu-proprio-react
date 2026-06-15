@@ -59,7 +59,7 @@ requestIdleCallback(workLoop)
 function performUnitOfWork(fiber) {
   const isFunctionComponent = fiber.type instanceof Function
   if (isFunctionComponent) {
-    // Virá na Missão 4
+    updateFunctionComponent(fiber)
   } else {
     updateHostComponent(fiber)
   }
@@ -263,3 +263,49 @@ updateApp("Mission 3: Fiber Tree works! 🌳", "Wait 2 seconds for the update...
 setTimeout(() => {
   updateApp("Mission 3: Reconciliation works! 🔄", "The DOM was updated without recreating the wrapper div.");
 }, 2000);
+
+// --- MISSÃO 4: Function Components e useState ---
+
+let wipFiber = null
+let hookIndex = null
+
+function updateFunctionComponent(fiber) {
+  wipFiber = fiber
+  hookIndex = 0
+  wipFiber.hooks = []
+  
+  const children = [fiber.type(fiber.props)]
+  reconcileChildren(fiber, children)
+}
+
+function useState(initial) {
+  const oldHook =
+    wipFiber.alternate &&
+    wipFiber.alternate.hooks &&
+    wipFiber.alternate.hooks[hookIndex]
+
+  const hook = {
+    state: oldHook ? oldHook.state : initial,
+    queue: [],
+  }
+
+  const actions = oldHook ? oldHook.queue : []
+  actions.forEach(action => {
+    hook.state = action instanceof Function ? action(hook.state) : action
+  })
+
+  const setState = action => {
+    hook.queue.push(action)
+    wipRoot = {
+      dom: currentRoot.dom,
+      props: currentRoot.props,
+      alternate: currentRoot,
+    }
+    nextUnitOfWork = wipRoot
+    deletions = []
+  }
+
+  wipFiber.hooks.push(hook)
+  hookIndex++
+  return [hook.state, setState]
+}
